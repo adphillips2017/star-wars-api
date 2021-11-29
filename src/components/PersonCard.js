@@ -56,11 +56,6 @@ const headerStyles = {
     borderTopRightRadius: '5px'
 };
 
-const labelStyles = {
-    fontSize: '0.8rem',
-    marginBottom: '0.5rem'
-};
-
 const fieldStyles = {
     fontSize: '1rem',
     fontWeight: 'bold',

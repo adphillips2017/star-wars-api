@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 
-import './App.css';
 import Header from './components/Header';
 import NotFound from './components/NotFound';
 import SpeciesBrowser from './components/SpeciesBrowser';
@@ -19,7 +18,8 @@ function App() {
 
   useEffect(() => {
     const getSpecies = async () => {
-      await fetchSpecies(nextPage);
+      const data = await fetchSpecies(nextPage);
+      setSpecies(data);
     };
 
     getSpecies();
@@ -36,7 +36,7 @@ function App() {
     setPrevPage(newPrevPage);
 
     console.log(`fetchNextPage`, data);
-    setSpecies(data.results);
+    return data.results
   };
 
   const getPageUrl = (page) => {
@@ -47,15 +47,41 @@ function App() {
     return `${speciesApiUrl}?page=${page}`;
   };
 
+  const searchSpecies = async (searchTerm) => {
+    if (!searchTerm) {
+      return;
+    }
+
+    setSpecies(await fetchSpecies(`${searchApiUrl}${searchTerm}`));
+  }
+
+  const setSpeciesPage = async (page) => {
+    if (!page) {
+      setSpecies(await fetchSpecies(nextPage));
+      return;
+    }
+
+    if (page === 'next') {
+      setSpecies(await fetchSpecies(nextPage));
+      return;
+    }
+
+    if (page === 'prev') {
+      setSpecies(await fetchSpecies(prevPage));
+    }
+
+    setSpecies(await fetchSpecies(getPageUrl(page)));
+  };
+
   return (
     <Router>
-      <Header />
+      <Header onSearch={searchSpecies} />
 
       <Routes>
         <Route path="/" exact element={(
-            <SpeciesBrowser species={species} onSelect={setSelectedPerson} />
+            <SpeciesBrowser species={species} onSelect={setSelectedPerson} onPageChange={setSpeciesPage} />
         )}/>
-        
+
         <Route path="/details" element={(
           <>
             { selectedPerson != null ? (
